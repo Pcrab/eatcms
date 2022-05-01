@@ -1,16 +1,17 @@
 import React, {useState} from "react";
 import {Layout, Menu, MenuProps} from "antd";
-import CONSTANTS from "./utils/constants";
 
-import {user} from "./App";
+import {user, UserType} from "./App";
 import Admin from "./main/Admin";
 import Review from "./main/Review";
+import Header from "./partials/Header";
 
 import {ReactComponent as UserManageSvg} from "./icons/userManage.svg";
 import {ReactComponent as AdminSvg} from "./icons/admin.svg";
 import {ReactComponent as ReviewSvg} from "./icons/review.svg";
+import Footer from "./partials/Footer";
 
-const {Header, Content, Footer, Sider} = Layout;
+const {Content, Sider} = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -57,16 +58,16 @@ const items: item[] = [
     icon: <UserManageSvg className={iconClass}/>,
     children: [
       {
-        label: "test",
-        key: "test",
+        label: "用户列表",
+        key: "userList",
       }
     ],
   },
 ];
-const menuItems: MenuItem[] = [];
-items.forEach(item => {
-  menuItems.push(getItem(item.label, item.key, item.icon, item.children));
-});
+
+const defaultContent = <div className="flex flex-col w-full h-full items-center justify-center">
+  <div className="text-center text-2xl font-bold">请选择一项操作。</div>
+</div>;
 
 interface mainProps {
   user: user,
@@ -75,9 +76,14 @@ interface mainProps {
 
 function Main(mainProps: mainProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [pageContent, setPageContent] = useState(<></>);
+  const [pageContent, setPageContent] = useState(defaultContent);
 
-  console.log(mainProps);
+  const mainItems = mainProps.user.type === UserType.Admin ? items : items.slice(1);
+  const menuItems: MenuItem[] = [];
+  mainItems.forEach(item => {
+    menuItems.push(getItem(item.label, item.key, item.icon, item.children));
+  });
+
 
   function onCollapse(collapsed: boolean) {
     console.log(collapsed);
@@ -94,9 +100,13 @@ function Main(mainProps: mainProps) {
       item.children?.forEach(child => {
         checkKey(child, key);
       });
+      return false;
     }
-    items.forEach(item => {
-      checkKey(item, key);
+
+    mainItems.forEach(item => {
+      if (checkKey(item, key)) {
+        return;
+      }
     });
   }
 
@@ -108,11 +118,11 @@ function Main(mainProps: mainProps) {
           onSelect={(key) => selectKey(key.key)}></Menu>
       </Sider>
       <Layout>
-        <Header className="h-8 m-4 p-0 bg-white"></Header>
+        <Header/>
         <Content className="mx-4 my-0">
           {pageContent}
         </Content>
-        <Footer className="text-center">{CONSTANTS.copyRight}</Footer>
+        <Footer />
       </Layout>
     </Layout>
   </>;
