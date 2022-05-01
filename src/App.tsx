@@ -3,7 +3,7 @@ import Main from "./Main";
 import Login, {LoginType} from "./Login";
 import CONSTANTS from "./utils/constants";
 
-enum UserType {
+export enum UserType {
   Admin = "admin",
   Reviewer = "reviewer",
 }
@@ -14,9 +14,14 @@ export interface user {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const SetUserContext = React.createContext((_: user | null) => {
-  return;
-});
+export const UserContext = React.createContext<{user: user | null, setUser: (_: user | null) => void }>(
+  {
+    user: {userName: "", type: UserType.Reviewer},
+    setUser: () => {
+      return;
+    }
+  }
+);
 
 function useUser() {
   const [page, setPage] = useState(<></>);
@@ -30,9 +35,9 @@ function useUser() {
         return;
       }
       if (CONSTANTS.testingAdmin) {
-        setUser({userName: "", type: UserType.Admin});
+        setUser({userName: "测试超管", type: UserType.Admin});
       }
-      setUser({userName: "", type: UserType.Reviewer});
+      setUser({userName: "测试审核", type: UserType.Reviewer});
     }
   }
 
@@ -58,17 +63,18 @@ function useUser() {
   }, [user, checked]);
 
   return {
-    SetUserContext,
+    SetUserContext: UserContext,
+    user,
     setUser,
     page,
   };
 }
 
 function App() {
-  const {SetUserContext, setUser, page} = useUser();
+  const {SetUserContext, user, setUser, page} = useUser();
   return (
     <div className="App h-full">
-      <SetUserContext.Provider value={setUser}>
+      <SetUserContext.Provider value={{user: user, setUser: setUser}}>
         {page}
       </SetUserContext.Provider>
     </div>

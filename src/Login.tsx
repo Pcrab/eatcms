@@ -2,7 +2,7 @@ import {Form, Input, Button} from "antd";
 import {UserOutlined, LockOutlined} from "@ant-design/icons";
 import React, {useContext, useEffect, useState} from "react";
 import CONSTANTS from "./utils/constants";
-import {SetUserContext, user} from "./App";
+import {UserContext, user} from "./App";
 
 export enum LoginType {
   Login = 0,
@@ -17,7 +17,7 @@ interface loginProps {
 function Login(loginProps: loginProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const setUser = useContext(SetUserContext);
+  const User = useContext(UserContext);
   const [errMsg, setErrMsg] = useState("");
   const [type, setType] = useState(loginProps.type);
   const [content, setContent] = useState({
@@ -99,7 +99,7 @@ function Login(loginProps: loginProps) {
       if (response.ok) {
         response.json().then((data) => {
           if (type === LoginType.Login) {
-            setUser(data as user);
+            User.setUser(data as user);
           } else if (type === LoginType.ResetPWD) {
             setType(LoginType.Login);
           }
