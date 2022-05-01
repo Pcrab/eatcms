@@ -1,13 +1,12 @@
-import {Form, Input, Button} from "antd";
-import {UserOutlined, LockOutlined} from "@ant-design/icons";
+import {Button, Form, Input} from "antd";
+import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import React, {useContext, useEffect, useState} from "react";
 import CONSTANTS from "./utils/constants";
-import {UserContext, user} from "./App";
+import {user, UserContext, UserType} from "./App";
 
 export enum LoginType {
   Login = 0,
   ResetPWD,
-  CreateUser,
 }
 
 interface loginProps {
@@ -57,10 +56,6 @@ function Login(loginProps: loginProps) {
         onClick={() => changeType(LoginType.Login)}>返回登陆</div>);
       text = "重置";
       url += CONSTANTS.resetPwdUrl;
-    } else if (type === LoginType.CreateUser) {
-      title = "创建用户";
-      text = "创建";
-      url += CONSTANTS.createUserUrl;
     }
 
     const btnClassName = "text-blue-900 font-bold login-form-button w-full bg-blue-200";
@@ -83,6 +78,18 @@ function Login(loginProps: loginProps) {
     if (!username || !password) {
       return;
     }
+
+
+    if (type === LoginType.Login) {
+      User.setUser({
+        userName: username,
+        type: UserType.Reviewer,
+      });
+    } else if (type === LoginType.ResetPWD) {
+      setType(LoginType.Login);
+    }
+
+
     setErrMsg("error!");
     fetch(content.url, {
       method: "POST",

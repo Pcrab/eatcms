@@ -36,8 +36,9 @@ function useUser() {
       }
       if (CONSTANTS.testingAdmin) {
         setUser({userName: "测试超管", type: UserType.Admin});
+      } else {
+        setUser({userName: "测试审核", type: UserType.Reviewer});
       }
-      setUser({userName: "测试审核", type: UserType.Reviewer});
     }
   }
 
