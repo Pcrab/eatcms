@@ -6,28 +6,18 @@ import Admin from "./main/Admin";
 import Review from "./main/Review";
 import Header from "./partials/Header";
 
-import {ReactComponent as UserManageSvg} from "./icons/userManage.svg";
 import {ReactComponent as AdminSvg} from "./icons/admin.svg";
 import {ReactComponent as ReviewSvg} from "./icons/review.svg";
+import {ReactComponent as UserManageSvg} from "./icons/userManage.svg";
+import {ReactComponent as PageManageSvg} from "./icons/pageManage.svg";
 import Footer from "./partials/Footer";
+import {Route, Routes, useNavigate} from "react-router-dom";
+import SpotDetail from "./main/PageManage/SpotDetail";
+import UserList from "./main/UserManage/UserList";
 
 const {Content, Sider} = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
-
-function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  } as MenuItem;
-}
 
 const iconClass = "h-5 w-6";
 
@@ -42,27 +32,40 @@ interface item {
 const items: item[] = [
   {
     label: "超级管理员",
-    key: "admin",
+    key: "Admin",
     icon: <AdminSvg className={iconClass}/>,
     content: <Admin/>,
   },
   {
     label: "审核",
-    key: "review",
+    key: "Review",
     icon: <ReviewSvg className={iconClass}/>,
     content: <Review/>,
   },
   {
     label: "用户管理",
-    key: "userManage",
+    key: "UserManage",
     icon: <UserManageSvg className={iconClass}/>,
     children: [
       {
         label: "用户列表",
-        key: "userList",
+        key: "UserList",
+        content: <UserList/>,
       }
     ],
   },
+  {
+    label: "页面管理",
+    key: "PageManage",
+    icon: <PageManageSvg className={iconClass}/>,
+    children: [
+      {
+        label: "景点详情页配置",
+        key: "SpotDetail",
+        content: <SpotDetail/>,
+      }
+    ],
+  }
 ];
 
 const defaultContent = <div className="flex flex-col w-full h-full items-center justify-center">
@@ -76,53 +79,65 @@ interface mainProps {
 
 function Main(mainProps: mainProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [pageContent, setPageContent] = useState(defaultContent);
+  const navigate = useNavigate();
+
+  function getItem(
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+  ): MenuItem {
+    return {
+      key,
+      icon,
+      children,
+      label,
+    } as MenuItem;
+  }
 
   const mainItems = mainProps.user.type === UserType.Admin ? items : items.slice(1);
   const menuItems: MenuItem[] = [];
   mainItems.forEach(item => {
     menuItems.push(getItem(item.label, item.key, item.icon, item.children));
   });
+  const routeItems: React.ReactNode[] = [];
+  mainItems.forEach(item => {
+    function addContent(item: item) {
+      if (item.content) {
+        routeItems.push(<Route key={item.key} path={`/${item.key}`} element={item.content}></Route>);
+      }
+      if (item.children) {
+        item.children.forEach(child => addContent(child));
+      }
+    }
 
+    addContent(item);
+  });
 
   function onCollapse(collapsed: boolean) {
     console.log(collapsed);
     setCollapsed(collapsed);
   }
 
-  function selectKey(key: string) {
-    console.log(key);
-    function checkKey(item: item, key: string) {
-      if (item.key === key) {
-        setPageContent(<>{item.content}</>);
-        return true;
-      }
-      item.children?.forEach(child => {
-        checkKey(child, key);
-      });
-      return false;
-    }
-
-    mainItems.forEach(item => {
-      if (checkKey(item, key)) {
-        return;
-      }
-    });
-  }
-
   return <>
     <Layout className="min-h-full">
       <Sider collapsible collapsed={collapsed} onCollapse={(collapsed) => onCollapse(collapsed)}>
         <div className="h-8 m-4 bg-gray-500"></div>
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={menuItems}
-          onSelect={(key) => selectKey(key.key)}></Menu>
+        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={menuItems} onClick={(e) => {
+          console.log(e.key);
+          navigate(`/${e.key}`);
+        }
+        }></Menu>
       </Sider>
       <Layout>
         <Header/>
         <Content className="mx-4 my-0">
-          {pageContent}
+          <Routes>
+            <Route path="/" element={defaultContent}/>
+            {routeItems}
+          </Routes>
         </Content>
-        <Footer />
+        <Footer/>
       </Layout>
     </Layout>
   </>;
