@@ -15,7 +15,7 @@ function Header() {
         <UserOutlined className="mr-2" />
         <div>欢迎登陆：{User.user?.userName}</div>
       </div>
-      <button className="ml-5 px-2 py-1 rounded-md bg-red-300" onClick={() => logout()} >退出登录</button>
+      <button className="ml-5 px-2 py-1 rounded-md bg-red-300 hover:bg-red-800 hover:text-white duration-200" onClick={() => logout()} >退出登录</button>
     </div>
   </>;
 
