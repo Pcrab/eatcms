@@ -15,7 +15,7 @@ function UserList() {
   const [users, setUsers] = React.useState<UserObject[]>([]);
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(20);
+  const [pageSize, setPageSize] = React.useState(10);
 
   const [selected, setSelected] = React.useState<UserObject[]>([]);
   const [userID, setUserID] = React.useState("");
@@ -89,17 +89,6 @@ function UserList() {
 
   return <>
     <div className="flex flex-col w-full h-full">
-      <div className="flex justify-end mb-4">
-        <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
-          selected.length !== 0 ?
-            "bg-red-300 hover:bg-red-800 hover:text-white" :
-            "bg-gray-300 text-gray-500")
-        } onClick={() => {
-          setText("确认删除所选中的这些用户吗？");
-          setVisible(true);
-        }}>批量删除
-        </button>
-      </div>
       <Table
         className="mb-4"
         rowSelection={{
@@ -112,7 +101,20 @@ function UserList() {
         dataSource={users.map((user) => ({...user, key: user.id}))}
         pagination={false}
       />
-      {pagination}
+      <div className="flex">
+        {pagination}
+        <div className="flex justify-end mb-4 flex-grow">
+          <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
+            selected.length !== 0 ?
+              "bg-red-300 hover:bg-red-800 hover:text-white" :
+              "bg-gray-300 text-gray-500")
+          } onClick={() => {
+            setText("确认删除所选中的这些用户吗？");
+            setVisible(true);
+          }}>批量删除
+          </button>
+        </div>
+      </div>
       <Modal title="删除用户" visible={singleVisible} text={text} onCancel={() => {
         setSingleVisible(false);
       }} onOk={
