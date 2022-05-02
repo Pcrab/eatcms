@@ -89,11 +89,17 @@ function UserList() {
 
   return <>
     <div className="flex flex-col w-full h-full">
-      <button disabled={selected.length === 0} className={""} onClick={() => {
-        setText("确认删除所选中的这些用户吗？");
-        setVisible(true);
-      }}>批量删除
-      </button>
+      <div className="flex justify-end mb-4">
+        <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
+          selected.length !== 0 ?
+            "bg-red-300 hover:bg-red-800 hover:text-white" :
+            "bg-gray-300 text-gray-500")
+        } onClick={() => {
+          setText("确认删除所选中的这些用户吗？");
+          setVisible(true);
+        }}>批量删除
+        </button>
+      </div>
       <Table
         className="mb-4"
         rowSelection={{
