@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import Main from "./Main";
-import Login, {LoginType} from "./Login";
 import CONSTANTS from "./utils/constants";
+import {useNavigate, useRoutes} from "react-router-dom";
+import {indexRoute} from "./route";
 
 export enum UserType {
   Admin = "admin",
@@ -14,7 +14,7 @@ export interface user {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const UserContext = React.createContext<{user: user | null, setUser: (_: user | null) => void }>(
+export const UserContext = React.createContext<{ user: user | null, setUser: (_: user | null) => void }>(
   {
     user: {userName: "", type: UserType.Reviewer},
     setUser: () => {
@@ -24,11 +24,11 @@ export const UserContext = React.createContext<{user: user | null, setUser: (_: 
 );
 
 function useUser() {
-  const [page, setPage] = useState(<></>);
   const [checked, setChecked] = useState(false);
   const [user, setUser] = useState<user | null>(null);
+  const navigate = useNavigate();
 
-  // 判断是否已经登录，并根据结果设置 isLogin
+  // 判断是否已经登录，并根据结果设置 user
   async function checkLoginStatus() {
     if (CONSTANTS.testing) {
       if (CONSTANTS.testingLogin) {
@@ -55,10 +55,10 @@ function useUser() {
     if (checked) {
       if (user) {
         console.log("welcome.");
-        setPage(<Main user={user}/>);
+        navigate("/main", {state: {type: user.type}});
       } else {
         console.log("please login.");
-        setPage(<Login type={LoginType.Login}/>);
+        navigate("/login");
       }
     }
   }, [user, checked]);
@@ -67,16 +67,17 @@ function useUser() {
     SetUserContext: UserContext,
     user,
     setUser,
-    page,
   };
 }
 
 function App() {
-  const {SetUserContext, user, setUser, page} = useUser();
+  const {SetUserContext, user, setUser} = useUser();
+  const route = useRoutes(indexRoute());
+
   return (
     <div className="App h-full">
       <SetUserContext.Provider value={{user: user, setUser: setUser}}>
-        {page}
+        {route}
       </SetUserContext.Provider>
     </div>
   );
