@@ -2,6 +2,7 @@ import {Table} from "antd";
 import React, {useEffect} from "react";
 import {testUsers} from "../../utils/constants";
 import Pagination from "../../partials/Pagination";
+import Modal from "../../partials/Modal";
 
 interface UserObject {
   id: string;
@@ -16,6 +17,13 @@ function UserList() {
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(20);
 
+  const [selected, setSelected] = React.useState<UserObject[]>([]);
+  const [userID, setUserID] = React.useState("");
+
+  const [singleVisible, setSingleVisible] = React.useState(false);
+  const [visible, setVisible] = React.useState(false);
+  const [text, setText] = React.useState("");
+
   useEffect(() => {
     refreshUser();
   }, [page, pageSize]);
@@ -24,12 +32,19 @@ function UserList() {
     console.log(`refresh user at page ${page} with size ${pageSize}`);
     setUsers(testUsers(pageSize));
     setTotal(22);
+    setSelected([]);
+    setUserID("");
   }
 
   function handleChange(page: number, pageSize: number) {
     setPage(page);
     setPageSize(pageSize);
     console.log(page, pageSize);
+  }
+
+  function handleSelect(selectedRows: UserObject[]) {
+    setSelected(selectedRows);
+    return;
   }
 
   const pagination = <Pagination onChange={(page, pageSize) => {
@@ -54,7 +69,9 @@ function UserList() {
       align: "right" as const,
       render: (text: string, record: UserObject) => (
         <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
-          deleteUser(record.id);
+          setText(`确认删除用户${record.nickName}吗？`);
+          setUserID(record.id);
+          setSingleVisible(true);
         }}>删除</div>
       ),
     }
@@ -62,22 +79,50 @@ function UserList() {
 
   function deleteUser(id: string) {
     console.log(`user deleted: ${id}`);
+    refreshUser();
+  }
+
+  function deleteUsers() {
+    console.log(`users deleted: ${selected.map(user => user.id)}`);
+    refreshUser();
   }
 
   return <>
     <div className="flex flex-col w-full h-full">
-      <div>
-        <Table
-          className="mb-4"
-          rowSelection={{
-            type: "checkbox",
-          }}
-          columns={columns}
-          dataSource={users.map((user) => ({...user, key: user.id}))}
-          pagination={false}
-        />
-        {pagination}
-      </div>
+      <button disabled={selected.length === 0} className={""} onClick={() => {
+        setText("确认删除所选中的这些用户吗？");
+        setVisible(true);
+      }}>批量删除
+      </button>
+      <Table
+        className="mb-4"
+        rowSelection={{
+          type: "checkbox",
+          onChange: (selectedRowKeys, selectedRows) => {
+            handleSelect(selectedRows);
+          }
+        }}
+        columns={columns}
+        dataSource={users.map((user) => ({...user, key: user.id}))}
+        pagination={false}
+      />
+      {pagination}
+      <Modal title="删除用户" visible={singleVisible} text={text} onCancel={() => {
+        setSingleVisible(false);
+      }} onOk={
+        () => {
+          deleteUser(userID);
+          setSingleVisible(false);
+        }
+      }/>
+      <Modal title="批量删除用户" visible={visible} text={text} onCancel={() => {
+        setVisible(false);
+      }} onOk={
+        () => {
+          deleteUsers();
+          setVisible(false);
+        }
+      }/>
     </div>
   </>;
 }
