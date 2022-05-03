@@ -43,3 +43,24 @@ p {
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
 }
+
+.enter {
+    opacity: 0;
+}
+.enter-active {
+    transition: opacity 400ms ease-in-out;
+    opacity: 1;
+}
+.enter-done {
+    opacity: 1;
+}
+.exit {
+    opacity: 1;
+}
+.exit-active {
+    opacity: 0;
+    transition: opacity 400ms ease-in-out;
+}
+.exit-done {
+    opacity: 0;
+}
