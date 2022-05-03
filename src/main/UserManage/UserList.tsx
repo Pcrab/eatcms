@@ -20,16 +20,30 @@ interface UserObject {
 function UserList() {
 
   const [users, setUsers] = React.useState<UserObject[]>([]);
+  const [user, setUser] = React.useState<UserObject | null>(null);
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
 
   const [selected, setSelected] = React.useState<UserObject[]>([]);
-  const [userID, setUserID] = React.useState("");
 
-  const [singleVisible, setSingleVisible] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
+  const [title, setTitle] = React.useState("");
   const [text, setText] = React.useState("");
+  const [action, setAction] = React.useState("deleteUser");
+
+  function onOk() {
+    if (action === "deleteUser") {
+      deleteUser(user);
+    } else if (action === "deleteUsers") {
+      deleteUsers();
+    } else if (action === "blockUser") {
+      blockUser(user);
+    } else if (action === "blockUsers") {
+      blockUsers();
+    }
+    setVisible(false);
+  }
 
   useEffect(() => {
     refreshUser();
@@ -87,7 +101,15 @@ function UserList() {
       disabled: record.role.indexOf("admin") !== -1,
       name: record._id,
     }),
+    selectedRowKeys: selected.map(user => user._id)
   };
+
+  function showModal(title: string, text: string, action: string) {
+    setTitle(title);
+    setText(text);
+    setAction(action);
+    setVisible(true);
+  }
 
   const columns = [
     {
@@ -158,14 +180,19 @@ function UserList() {
       title: "操作",
       dataIndex: "action",
       key: "action",
-      align: "right" as const,
+      align: "center" as const,
       render: (text: string, record: UserObject) =>{
         if (record.role.indexOf(UserType.Admin) === -1) {
-          return <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
-            setText(`确认删除用户${record.userName}吗？`);
-            setUserID(record._id);
-            setSingleVisible(true);
-          }}>删除</div>;
+          return <div className="flex justify-center">
+            <div className="text-blue-800 mr-4 font-bold cursor-pointer" onClick={() => {
+              setUser(record);
+              showModal("封禁用户", `确定封禁用户 ${record.userName} 吗？`, "blockUser");
+            }}>封禁</div>
+            <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
+              setUser(record);
+              showModal("删除用户", `确定删除用户 ${record.userName} 吗？`,"deleteUser");
+            }}>删除</div>
+          </div>;
         } else {
           return <></>;
         }
@@ -173,13 +200,33 @@ function UserList() {
     }
   ];
 
-  function deleteUser(id: string) {
-    console.log(`user deleted: ${id}`);
-    refreshUser();
+  function deleteUser(user: UserObject | null) {
+    if (user) {
+      console.log(`user deleted: ${user._id}`);
+      refreshUser();
+    } else {
+      console.log("user not found");
+    }
   }
 
   function deleteUsers() {
     console.log(`users deleted: ${selected.map(user => user._id)}`);
+    setSelected([]);
+    refreshUser();
+  }
+
+  function blockUser(user: UserObject | null) {
+    if (user) {
+      console.log(`user blocked: ${user._id}`);
+      refreshUser();
+    } else {
+      console.log("user not found");
+    }
+  }
+
+  function blockUsers() {
+    console.log(`users blocked: ${selected.map(user => user._id)}`);
+    setSelected([]);
     refreshUser();
   }
 
@@ -200,29 +247,25 @@ function UserList() {
         <div className="flex justify-end mb-4 flex-grow">
           <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
             selected.length !== 0 ?
+              "bg-blue-300 hover:bg-blue-800 hover:text-white" :
+              "bg-gray-300 text-gray-500")
+          } onClick={() => {
+            showModal("批量封禁用户", "确定封禁选中的这些用户吗？", "blockUsers");
+          }}>批量封禁</button>
+          <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
+            selected.length !== 0 ?
               "bg-red-300 hover:bg-red-800 hover:text-white" :
               "bg-gray-300 text-gray-500")
           } onClick={() => {
-            setText("确认删除所选中的这些用户吗？");
-            setVisible(true);
-          }}>批量删除
-          </button>
+            showModal("批量删除用户", "确定删除选中的这些用户吗？", "deleteUsers");
+          }}>批量删除</button>
         </div>
       </div>
-      <Modal title="删除用户" visible={singleVisible} text={text} onCancel={() => {
-        setSingleVisible(false);
-      }} onOk={
-        () => {
-          deleteUser(userID);
-          setSingleVisible(false);
-        }
-      }/>
-      <Modal title="批量删除用户" visible={visible} text={text} onCancel={() => {
+      <Modal title={title} visible={visible} text={text} onCancel={() => {
         setVisible(false);
       }} onOk={
         () => {
-          deleteUsers();
-          setVisible(false);
+          onOk();
         }
       }/>
     </div>
