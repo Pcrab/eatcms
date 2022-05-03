@@ -71,12 +71,23 @@ function UserList() {
 
   function handleSelect(selectedRows: UserObject[]) {
     setSelected(selectedRows);
+    console.log(selectedRows);
     return;
   }
 
   const pagination = <Pagination onChange={(page, pageSize) => {
     handleChange(page, pageSize);
   }} defaultPageSize={pageSize} total={total}/>;
+
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: UserObject[]) => {
+      handleSelect(selectedRows);
+    },
+    getCheckboxProps: (record: UserObject) => ({
+      disabled: record.role.indexOf("admin") !== -1,
+      name: record._id,
+    }),
+  };
 
   const columns = [
     {
@@ -178,9 +189,7 @@ function UserList() {
         className="mb-4"
         rowSelection={{
           type: "checkbox",
-          onChange: (selectedRowKeys, selectedRows) => {
-            handleSelect(selectedRows);
-          }
+          ...rowSelection
         }}
         columns={columns}
         dataSource={users.map((user) => ({...user, key: user._id}))}
