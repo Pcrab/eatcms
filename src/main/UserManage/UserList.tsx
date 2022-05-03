@@ -1,14 +1,21 @@
-import {Table} from "antd";
+import {Table, Tag} from "antd";
 import React, {useEffect} from "react";
-import {testUsers} from "../../utils/constants";
+import CONSTANTS from "../../utils/constants";
 import Pagination from "../../partials/Pagination";
 import Modal from "../../partials/Modal";
+import axios from "axios";
+import {UserType} from "../../App";
 
 interface UserObject {
-  id: string;
-  nickName: string;
+  _id: string;
+  userName: string;
+  role: string[];
+  city?: string;
+  province?: string;
+  country?: string;
+  create_time?: string;
+  isLegal?: boolean;
 }
-
 
 function UserList() {
 
@@ -30,10 +37,30 @@ function UserList() {
 
   function refreshUser() {
     console.log(`refresh user at page ${page} with size ${pageSize}`);
-    setUsers(testUsers(pageSize));
-    setTotal(22);
-    setSelected([]);
-    setUserID("");
+    axios.get(CONSTANTS.allUserUrl + `/${page}/${pageSize}`, {
+
+      headers: {
+        "Authorization": `${localStorage.getItem("token")}`
+      }
+    }).then(res => {
+      if (res.data.code === 0) {
+        console.log(res.data.total);
+        console.log(res.data.data);
+        const users = res.data.data.map((user: any) => {
+          return {
+            id: user._id,
+            userName: user.userName || user.nickName || "fakeUserName",
+            ...user
+          };
+        });
+        setTotal(res.data.total);
+        setUsers(users);
+      } else {
+        console.log(res.data.mess);
+      }
+    }).catch(err => {
+      console.log(err);
+    });
   }
 
   function handleChange(page: number, pageSize: number) {
@@ -58,22 +85,80 @@ function UserList() {
       key: "id",
     },
     {
-      title: "昵称",
-      dataIndex: "nickName",
-      key: "nickName",
+      title: "用户名",
+      dataIndex: "userName",
+      key: "userName",
+    },
+    {
+      title: "城市",
+      dataIndex: "city",
+      key: "city",
+    },
+    {
+      title: "省份",
+      dataIndex: "province",
+      key: "province",
+    },
+    {
+      title: "国家",
+      dataIndex: "country",
+      key: "country",
+    },
+    {
+      title: "身份",
+      dataIndex: "role",
+      key: "role",
+      render: (tags: string[]) => {
+        if (tags.indexOf("admin") !== -1) {
+          return <Tag color="volcano">管理</Tag>;
+        } else {
+          return <>
+            {
+              tags.map((tag: string) => {
+                if (tag === "reviewer") {
+                  return <Tag color="geekblue" key="reviewer">审核</Tag>;
+                } else {
+                  return <Tag color="green" key="user">用户</Tag>;
+                }
+              })
+            }
+          </>;
+        }
+      }
+    },
+    {
+      title: "创建时间",
+      dataIndex: "create_time",
+      key: "create_time",
+    },
+    {
+      title: "状态",
+      dataIndex: "isLegal",
+      key: "isLegal",
+      render: (isLegal: boolean) => {
+        if (isLegal === false) {
+          return <Tag color="volcano">封禁</Tag>;
+        } else {
+          return <Tag color="green">正常</Tag>;
+        }
+      }
     },
     {
       title: "操作",
       dataIndex: "action",
       key: "action",
       align: "right" as const,
-      render: (text: string, record: UserObject) => (
-        <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
-          setText(`确认删除用户${record.nickName}吗？`);
-          setUserID(record.id);
-          setSingleVisible(true);
-        }}>删除</div>
-      ),
+      render: (text: string, record: UserObject) =>{
+        if (record.role.indexOf(UserType.Admin) === -1) {
+          return <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
+            setText(`确认删除用户${record.userName}吗？`);
+            setUserID(record._id);
+            setSingleVisible(true);
+          }}>删除</div>;
+        } else {
+          return <></>;
+        }
+      }
     }
   ];
 
@@ -83,7 +168,7 @@ function UserList() {
   }
 
   function deleteUsers() {
-    console.log(`users deleted: ${selected.map(user => user.id)}`);
+    console.log(`users deleted: ${selected.map(user => user._id)}`);
     refreshUser();
   }
 
@@ -98,7 +183,7 @@ function UserList() {
           }
         }}
         columns={columns}
-        dataSource={users.map((user) => ({...user, key: user.id}))}
+        dataSource={users.map((user) => ({...user, key: user._id}))}
         pagination={false}
       />
       <div className="flex">

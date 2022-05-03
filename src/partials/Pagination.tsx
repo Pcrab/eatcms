@@ -18,7 +18,7 @@ function Pagination(props: PaginationProps) {
       current={current}
       defaultCurrent={1}
       defaultPageSize={props.defaultPageSize}
-      hideOnSinglePage={true}
+      // hideOnSinglePage={true}
       onChange={(page, pageSize) => {
         setCurrent(page);
         props.onChange(page, pageSize);

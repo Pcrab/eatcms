@@ -7,6 +7,9 @@ import {UserContext} from "../App";
 function Header() {
   const User = useContext(UserContext);
   function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("role");
     User.setUser(null);
   }
   return <>
@@ -18,7 +21,6 @@ function Header() {
       <button className="ml-5 px-2 py-1 rounded-md bg-red-300 hover:bg-red-800 hover:text-white duration-200" onClick={() => logout()} >退出登录</button>
     </div>
   </>;
-
 }
 
 export default Header;

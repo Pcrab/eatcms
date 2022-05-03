@@ -2,7 +2,8 @@ import {Button, Form, Input} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import React, {useContext, useEffect, useState} from "react";
 import CONSTANTS from "./utils/constants";
-import {user, UserContext, UserType} from "./App";
+import {UserContext, UserType} from "./App";
+import axios from "axios";
 
 export enum LoginType {
   Login = 0,
@@ -14,7 +15,7 @@ interface loginProps {
 }
 
 function Login(loginProps: loginProps) {
-  const [username, setUsername] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const User = useContext(UserContext);
   const [errMsg, setErrMsg] = useState("");
@@ -31,7 +32,7 @@ function Login(loginProps: loginProps) {
 
   function changeType(type: LoginType) {
     setErrMsg("");
-    setUsername("");
+    setUserName("");
     setPassword("");
     setType(type);
   }
@@ -75,49 +76,40 @@ function Login(loginProps: loginProps) {
 
   function handleSubmit() {
     setErrMsg("");
-    if (!username || !password) {
+    if (!userName || !password) {
       return;
     }
 
-
     if (type === LoginType.Login) {
-      User.setUser({
-        userName: username,
-        type: UserType.Reviewer,
+      axios.post(CONSTANTS.loginUrl, {
+        userName: userName,
+        password: password,
+      }).then((res) => {
+        if (res.data.code === 0) {
+          console.log(res.data.token);
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("userName", userName);
+          localStorage.setItem("role", JSON.stringify(res.data.role));
+          if (res.data.role.indexOf("admin") === -1) {
+            User.setUser({
+              userName: userName,
+              type: UserType.Reviewer,
+            });
+          } else {
+            User.setUser({
+              userName: userName,
+              type: UserType.Admin,
+            });
+          }
+        } else {
+          setErrMsg(res.data.mess);
+        }
+      }).catch((err) => {
+        setErrMsg(err.message);
       });
     } else if (type === LoginType.ResetPWD) {
       setType(LoginType.Login);
     }
-
-
-    setErrMsg("error!");
-    fetch(content.url, {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
-    }).then((response) => {
-      if (response.ok) {
-        response.json().then((data) => {
-          if (type === LoginType.Login) {
-            User.setUser(data as user);
-          } else if (type === LoginType.ResetPWD) {
-            setType(LoginType.Login);
-          }
-        });
-      } else {
-        response.text().then((data) => {
-          setErrMsg(data);
-        });
-      }
-    });
-    return;
   }
 
   return <div className="flex flex-col mt-24 mx-auto w-96 items-center justify-center">
@@ -134,8 +126,8 @@ function Login(loginProps: loginProps) {
         rules={[{required: true, message: "请输入用户名！"}]}
       >
         <Input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
           prefix={<UserOutlined className="site-form-item-icon"/>}
           placeholder="用户名"/>
       </Form.Item>

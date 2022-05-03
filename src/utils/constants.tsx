@@ -1,12 +1,14 @@
 const remoteBaseUrl = "http://127.0.0.1/";
 
 const CONSTANTS = {
-  loginUrl: remoteBaseUrl + "",
+  loginUrl: remoteBaseUrl + "/admin/login",
+  allUserUrl: remoteBaseUrl + "/api/allUser",
+
   resetPwdUrl: remoteBaseUrl + "",
   createUserUrl: remoteBaseUrl + "",
 
-  testing: true,
-  testingLogin: false,
+  testing: false,
+  testingLogin: true,
   testingAdmin: true,
 
   copyRight: "TEST COPYRIGHT 2022",

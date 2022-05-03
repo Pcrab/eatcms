@@ -39,6 +39,21 @@ function useUser() {
       } else {
         setUser({userName: "测试审核", type: UserType.Reviewer});
       }
+    } else {
+      const userName = localStorage.getItem("userName");
+      const roles = localStorage.getItem("role");
+      const token = localStorage.getItem("token");
+      if (!userName || !roles || !token) {
+        setUser(null);
+      } else {
+        if (roles.indexOf("admin") !== -1) {
+          setUser({userName, type: UserType.Admin});
+        } else if (roles.indexOf("reviewer") !== -1) {
+          setUser({userName, type: UserType.Reviewer});
+        } else {
+          setUser(null);
+        }
+      }
     }
   }
 
