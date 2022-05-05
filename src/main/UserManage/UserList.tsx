@@ -58,8 +58,6 @@ function UserList() {
       }
     }).then(res => {
       if (res.data.code === 0) {
-        console.log(res.data.total);
-        console.log(res.data.data);
         const users = res.data.data.map((user: any) => {
           return {
             id: user._id,
@@ -97,10 +95,13 @@ function UserList() {
     onChange: (selectedRowKeys: React.Key[], selectedRows: UserObject[]) => {
       handleSelect(selectedRows);
     },
-    getCheckboxProps: (record: UserObject) => ({
-      disabled: record.role.indexOf("admin") !== -1,
-      name: record._id,
-    }),
+    getCheckboxProps: (record: UserObject) => {
+      console.log(record);
+      return {
+        disabled: record.role.indexOf("admin") !== -1,
+        name: record._id,
+      };
+    },
     selectedRowKeys: selected.map(user => user._id)
   };
 
@@ -181,17 +182,19 @@ function UserList() {
       dataIndex: "action",
       key: "action",
       align: "center" as const,
-      render: (text: string, record: UserObject) =>{
+      render: (text: string, record: UserObject) => {
         if (record.role.indexOf(UserType.Admin) === -1) {
           return <div className="flex justify-center">
             <div className="text-blue-800 mr-4 font-bold cursor-pointer" onClick={() => {
               setUser(record);
               showModal("封禁用户", `确定封禁用户 ${record.userName} 吗？`, "blockUser");
-            }}>封禁</div>
+            }}>封禁
+            </div>
             <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
               setUser(record);
-              showModal("删除用户", `确定删除用户 ${record.userName} 吗？`,"deleteUser");
-            }}>删除</div>
+              showModal("删除用户", `确定删除用户 ${record.userName} 吗？`, "deleteUser");
+            }}>删除
+            </div>
           </div>;
         } else {
           return <></>;
@@ -251,14 +254,16 @@ function UserList() {
               "bg-gray-300 text-gray-500")
           } onClick={() => {
             showModal("批量封禁用户", "确定封禁选中的这些用户吗？", "blockUsers");
-          }}>批量封禁</button>
+          }}>批量封禁
+          </button>
           <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
             selected.length !== 0 ?
               "bg-red-300 hover:bg-red-800 hover:text-white" :
               "bg-gray-300 text-gray-500")
           } onClick={() => {
             showModal("批量删除用户", "确定删除选中的这些用户吗？", "deleteUsers");
-          }}>批量删除</button>
+          }}>批量删除
+          </button>
         </div>
       </div>
       <Modal title={title} visible={visible} text={text} onCancel={() => {
