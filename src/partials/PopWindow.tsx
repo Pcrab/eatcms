@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
+import {Divider} from "antd";
 
-interface PopWindowProps extends React.HTMLProps<HTMLDivElement>{
+export interface PopWindowProps extends React.HTMLProps<HTMLDivElement>{
   opened: boolean;
   onClose: () => void;
   innerClassName?: string;
@@ -78,6 +79,7 @@ function PopWindow(props: PopWindowProps) {
           }>
           <div className="overflow-auto flex-grow items-center pr-8 py-6 flex flex-col mx-auto">
             {props.children}
+            <Divider/>
           </div>
         </div>
       </div>

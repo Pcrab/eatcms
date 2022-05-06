@@ -1,8 +1,13 @@
+import axios from "axios";
+
 const remoteBaseUrl = "http://81.68.152.160:3000";
 
+// noinspection SpellCheckingInspection
 const CONSTANTS = {
   loginUrl: remoteBaseUrl + "/admin/login",
   allUserUrl: remoteBaseUrl + "/api/allUser",
+
+  uploadImgUrl: remoteBaseUrl + "/api/upload",
 
   resetPwdUrl: remoteBaseUrl + "",
   createUserUrl: remoteBaseUrl + "",
@@ -19,16 +24,22 @@ const CONSTANTS = {
   mainRoute: "/main",
 };
 
-export const testUsers = (number: number) => {
-  const users = [];
-  for (let i = 0; i < number; i++) {
-    users.push({
-      id: i.toString(),
-      nickName: "test" + i,
-    });
+export function buildBlob(file: string): Blob | null {
+  const arr = file.split(",");
+  const reg = arr[0].match(/:(.*?);/);
+  if (reg) {
+    const mime = reg[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], {type: mime});
+  } else {
+    return null;
   }
-  return users;
-};
+}
 
 export const testArticles = (number: number) => {
   const articles = [];
@@ -37,12 +48,6 @@ export const testArticles = (number: number) => {
       id: i.toString(),
       title: "testTitle" + i,
       author: "testAuthor" + i,
-      // images: [
-      //   "http://127.0.0.1:8000/1.jpg",
-      //   "http://127.0.0.1:8000/2.jpg",
-      //   "http://127.0.0.1:8000/3.jpg",
-      //   "http://127.0.0.1:8000/4.jpg",
-      // ],
     });
   }
   return articles;
@@ -94,4 +99,71 @@ export const testCities = (number: number) => {
   return cities;
 };
 
+interface SendImagesObject {
+  images: string[];
+  pendingImages: string[];
+  setImages: (pic: string[]) => void;
+  setPendingImages: (pendingImages: string[]) => void;
+  onSuccess?: () => void;
+  onFail?: (err: string) => void;
+  onFinish?: () => void;
+}
+
+export async function sendImages(obj: SendImagesObject) {
+  const pending = [...obj.pendingImages];
+  const newPending: string[] = [];
+  const urls = [...obj.images];
+  const initRequest = await axios.get(CONSTANTS.uploadImgUrl, {
+    headers: {
+      "Authorization": localStorage.getItem("token") || ""
+    }
+  });
+  const data = initRequest.data;
+
+  for (const item of pending) {
+    const blob = buildBlob(item);
+    if (blob) {
+      const fileName = `${Date.now()}.${blob.type.split("/")[1]}`;
+      const formData = new FormData();
+      formData.append("key", "city/${filename}");
+      formData.append("policy", data.policy);
+      formData.append("OSSAccessKeyId", data.accessid);
+      formData.append("success_action_status", "200");
+      formData.append("signature", data.signature);
+      formData.append("file", blob, fileName);
+      const result = await axios.post(data.host, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      if (result.status === 200) {
+        urls.push(data.host + "/city/" + fileName);
+      } else {
+        newPending.push(item);
+      }
+    } else {
+      console.log("build blob failed");
+      newPending.push(item);
+    }
+  }
+  obj.setImages([...urls]);
+  obj.setPendingImages([...newPending]);
+  if (obj.onFinish) {
+    obj.onFinish();
+  }
+  if (newPending.length !== 0) {
+    if (obj.onFail) {
+      obj.onFail("部分图片上传失败，请重试");
+    }
+  } else {
+    // 全都上传完成，可以发送到后台
+    console.log(`send: ${urls}`);
+
+    if (obj.onSuccess) {
+      obj.onSuccess();
+    }
+  }
+}
+
 export default CONSTANTS;
+
