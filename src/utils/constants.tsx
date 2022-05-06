@@ -9,6 +9,8 @@ const CONSTANTS = {
 
   uploadImgUrl: remoteBaseUrl + "/api/upload",
 
+  addObjectUrl: remoteBaseUrl + "/api/add",
+
   resetPwdUrl: remoteBaseUrl + "",
   createUserUrl: remoteBaseUrl + "",
 
@@ -104,12 +106,15 @@ interface SendImagesObject {
   pendingImages: string[];
   setImages: (pic: string[]) => void;
   setPendingImages: (pendingImages: string[]) => void;
-  onSuccess?: () => void;
+  cover: string;
+  setCover: (cover: string) => void;
+  onSuccess?: (images: string[], cover: string) => void;
   onFail?: (err: string) => void;
   onFinish?: () => void;
 }
 
 export async function sendImages(obj: SendImagesObject) {
+  let cover = "";
   const pending = [...obj.pendingImages];
   const newPending: string[] = [];
   const urls = [...obj.images];
@@ -120,7 +125,7 @@ export async function sendImages(obj: SendImagesObject) {
   });
   const data = initRequest.data;
 
-  for (const item of pending) {
+  for (const item of [obj.cover, ...pending]) {
     const blob = buildBlob(item);
     if (blob) {
       const fileName = `${Date.now()}.${blob.type.split("/")[1]}`;
@@ -137,13 +142,21 @@ export async function sendImages(obj: SendImagesObject) {
         }
       });
       if (result.status === 200) {
-        urls.push(data.host + "/city/" + fileName);
+        const name = data.host + "/city/" + fileName;
+        if (item === obj.cover) {
+          obj.setCover(name);
+          cover = name;
+        } else {
+          urls.push(name);
+        }
       } else {
         newPending.push(item);
       }
     } else {
       console.log("build blob failed");
-      newPending.push(item);
+      if (item !== cover) {
+        newPending.push(item);
+      }
     }
   }
   obj.setImages([...urls]);
@@ -160,7 +173,8 @@ export async function sendImages(obj: SendImagesObject) {
     console.log(`send: ${urls}`);
 
     if (obj.onSuccess) {
-      obj.onSuccess();
+      console.log(urls, cover);
+      obj.onSuccess(urls, cover);
     }
   }
 }

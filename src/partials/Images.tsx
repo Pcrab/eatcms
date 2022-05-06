@@ -20,17 +20,65 @@ interface ImagesProps extends HTMLProps<HTMLDivElement> {
   setImages: (images: string[]) => void;
   pendingImages: string[];
   setPendingImages: (images: string[]) => void;
-  onUpload: (files: FileList | null) => void;
+  cover: string;
+  setCover: (cover: string) => void;
 }
 
 function Images(props: ImagesProps) {
 
   const fileInput = useRef<HTMLInputElement>(null);
+  const coverInput = useRef<HTMLInputElement>(null);
 
   function tryUpload() {
     if (fileInput.current) {
       fileInput.current.click();
     }
+  }
+
+  function tryUploadCover() {
+    if (coverInput.current) {
+      coverInput.current.click();
+    }
+  }
+
+  function uploadImg(files: FileList | null) {
+    if (!files) {
+      return;
+    }
+    const newImages: string[] = [];
+    props.pendingImages.forEach((item) => {
+      newImages.push(item);
+    });
+    for (let i = 0; i < files.length; i++) {
+      if (props.images.length + props.pendingImages.length >= 9) {
+        break;
+      }
+      const file = files.item(i);
+      if (!file) {
+        continue;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        newImages.push(reader.result as string);
+        props.setPendingImages(newImages);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function uploadCover(files: FileList | null) {
+    if (!files) {
+      return;
+    }
+    const newCover = files.item(0);
+    if (!newCover) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      props.setCover(reader.result as string);
+    };
+    reader.readAsDataURL(newCover);
   }
 
   function deleteImg(index: number) {
@@ -57,31 +105,46 @@ function Images(props: ImagesProps) {
   }
 
   return <>
-    {props.images.map((item, index) => {
-      console.log(item);
-      return <>
-        <Img src={item} key={`origin-${index}`} deleteImg={() => {deleteImg(index);}}/>
-      </>;
-    })}
-    {props.pendingImages.map((item, index) => {
-      console.log(item);
-      return <>
-        <Img src={item} key={`pending-${index}`} deleteImg={() => {deleteImg(index);}}/>
-      </>;
-    })}
-    {
-      props.images.length + props.pendingImages.length < 9 &&
-      <div className="w-40 h-40 relative flex items-center justify-center mb-8 rounded border-2 text-lg
+    <div className="flex flex-col items-center">
+      <div className="flex flex-wrap my-5">
+        {props.images.map((item, index) => {
+          return <>
+            <Img src={item} key={`origin-${index}`} deleteImg={() => {deleteImg(index);}}/>
+          </>;
+        })}
+        {props.pendingImages.map((item, index) => {
+          return <>
+            <Img src={item} key={`pending-${index}`} deleteImg={() => {deleteImg(index + props.images.length);}}/>
+          </>;
+        })}
+        {
+          props.images.length + props.pendingImages.length < 9 &&
+          <div className="w-40 h-40 relative flex items-center justify-center mb-8 rounded border-2 text-lg
           border-gray-300 text-gray-500 bg-gray-100 duration-200 hover:border-gray-500 hover:text-gray-700 hover:font-bold"
-      onClick={() => {tryUpload();}}>
-        <div className="m-auto">上传</div>
-        <input hidden={true} ref={fileInput} type="file" onChange={() => {
-          if (fileInput.current) {
-            props.onUpload(fileInput.current.files);
-          }
-        }} multiple={true} accept="image/*"/>
+          onClick={() => {tryUpload();}}>
+            <div className="m-auto">上传</div>
+            <input hidden={true} ref={fileInput} type="file" onChange={() => {
+              if (fileInput.current) {
+                uploadImg(fileInput.current.files);
+              }
+            }} multiple={true} accept="image/*"/>
+          </div>
+        }
       </div>
-    }
+      {
+        props.cover
+          ? <Img src={props.cover} deleteImg={() => {props.setCover("");}} />
+          : <div className="w-60 h-32 relative flex items-center justify-center mb-8 rounded border-2 text-lg
+      border-gray-300 text-gray-500 bg-gray-100 duration-200 hover:border-gray-500 hover:text-gray-700 hover:font-bold" onClick={() => {tryUploadCover();}}>
+            <div className="m-auto">上传封面图</div>
+            <input hidden={true} ref={coverInput} type="file" onChange={() => {
+              if (coverInput.current) {
+                uploadCover(coverInput.current.files);
+              }
+            }} accept="image/*"/>
+          </div>
+      }
+    </div>
   </>;
 }
 
