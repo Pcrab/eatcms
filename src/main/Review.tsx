@@ -125,9 +125,9 @@ function Review() {
       title: "操作",
       dataIndex: "action",
       key: "action",
-      align: "right" as const,
+      align: "center" as const,
       render: (text: string, record: ArticleObject) => (
-        <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
+        <div className="text-red-800 flex items-center justify-center font-bold cursor-pointer" onClick={() => {
           console.log(record);
           setArticle(testArticleDetail(record.id));
           setOpened(true);

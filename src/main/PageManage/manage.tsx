@@ -292,12 +292,12 @@ function Manage(props: ManageProps) {
     title: "操作",
     dataIndex: "action",
     key: "action",
-    align: "right" as const,
+    align: "center" as const,
     render: (text: string, object: CityObject | ScenenicObject | FoodObject) => (
-      <div className="flex items-center">
+      <div className="flex justify-center items-center">
         {
           props.type === "city" &&
-          <div onClick={() => {
+          <div className="text-blue-800 font-bold cursor-pointer mr-5" onClick={() => {
             setType("scenenic");
             setObject({
               ...emptyScenicObject(),
@@ -310,7 +310,7 @@ function Manage(props: ManageProps) {
         }
         {
           props.type === "scenenic" &&
-          <div onClick={() => {
+          <div className="text-blue-800 font-bold cursor-pointer mr-5" onClick={() => {
             setType("food");
             setObject({
               ...emptyFoodObject(),
