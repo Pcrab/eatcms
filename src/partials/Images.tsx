@@ -2,10 +2,11 @@ import React, {HTMLProps, useRef} from "react";
 
 interface ImgProps extends HTMLProps<HTMLImageElement> {
   deleteImg: () => void;
+  key?: string;
 }
 
 function Img(props: ImgProps) {
-  return <div className="relative mb-8 w-40 h-40 mr-6">
+  return <div key={props.key} className="relative mb-8 w-40 h-40 mr-6">
     <img alt="上传的图片" key={props.src} src={props.src} className="object-cover w-40 h-40 rounded-xl"/>
     <div onClick={() => {
       props.deleteImg();

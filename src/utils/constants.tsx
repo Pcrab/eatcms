@@ -10,6 +10,7 @@ const CONSTANTS = {
   uploadImgUrl: remoteBaseUrl + "/api/upload",
 
   addObjectUrl: remoteBaseUrl + "/api/add",
+  getAllObjectUrl: remoteBaseUrl + "/csf/getall",
 
   resetPwdUrl: remoteBaseUrl + "",
   createUserUrl: remoteBaseUrl + "",
@@ -108,7 +109,7 @@ interface SendImagesObject {
   setPendingImages: (pendingImages: string[]) => void;
   cover: string;
   setCover: (cover: string) => void;
-  onSuccess?: (images: string[], cover: string) => void;
+  onSuccess?: (pic: string[], card_pic: string) => void;
   onFail?: (err: string) => void;
   onFinish?: () => void;
 }
@@ -125,7 +126,11 @@ export async function sendImages(obj: SendImagesObject) {
   });
   const data = initRequest.data;
 
-  for (const item of [obj.cover, ...pending]) {
+  if (obj.cover.indexOf("data") === 0) {
+    pending.push(obj.cover);
+  }
+
+  for (const item of [...pending]) {
     const blob = buildBlob(item);
     if (blob) {
       const fileName = `${Date.now()}.${blob.type.split("/")[1]}`;

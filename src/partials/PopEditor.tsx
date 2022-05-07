@@ -23,7 +23,7 @@ function PopEditor(props: PopEditorProps) {
         className="bg-green-100 font-bold text-xl px-6 py-2 rounded-xl mx-10 hover:bg-green-800 hover:text-white duration-300"
         onClick={() => {
           props.onOk();
-          // props.onClose();
+          props.onClose();
         }}>{props.okText}
       </button>
       <button

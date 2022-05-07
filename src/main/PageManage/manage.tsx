@@ -12,17 +12,21 @@ interface LocationObject {
   longitude: number,
 }
 
-interface BaseObject {
+interface CityObject {
+  _id: string,
   name: string,
   location: LocationObject;
   detail: string;
   oneword: string;
+  order: number;
+  hotvalue: number;
   pic: string[];
   card_pic: string;
 }
 
-function emptyBaseObject(): BaseObject {
+function emptyCityObject(): CityObject {
   return {
+    _id: "",
     name: "",
     location: {
       latitude: 0,
@@ -30,31 +34,20 @@ function emptyBaseObject(): BaseObject {
     },
     detail: "",
     oneword: "",
+    order: 0,
+    hotvalue: 0,
     pic: [],
     card_pic: "",
   };
 }
 
-interface CityObject extends BaseObject {
-  order: number;
-  hotvalue: number;
-}
-
-function emptyCityObject(): CityObject {
-  return {
-    ...emptyBaseObject(),
-    order: 0,
-    hotvalue: 0,
-  };
-}
-
-interface ScenenicObject extends BaseObject {
+interface ScenenicObject extends CityObject {
   city_id: string;
 }
 
 function emptyScenicObject(): ScenenicObject {
   return {
-    ...emptyBaseObject(),
+    ...emptyCityObject(),
     city_id: "",
   };
 }
@@ -72,7 +65,6 @@ function emptyFoodObject(): FoodObject {
 
 interface EditProps extends HTMLProps<HTMLDivElement> {
   type: "city" | "scenenic" | "food";
-  prefix: "城市" | "景点" | "美食";
   opened: boolean,
   onClose: () => void,
   object: CityObject | ScenenicObject | FoodObject,
@@ -80,7 +72,6 @@ interface EditProps extends HTMLProps<HTMLDivElement> {
 }
 
 function Edit(props: EditProps) {
-  const isEditing = !!props.object;
   const [name, setName] = useState("");
   const [location, setLocation] = useState({latitude: 0, longitude: 0});
   const [longitude, setLongitude] = useState(0);
@@ -109,7 +100,7 @@ function Edit(props: EditProps) {
     setPic(props.object?.pic || []);
     setCardPic(props.object?.card_pic || "");
 
-    setPrefix(props.prefix);
+    setPrefix(props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食");
 
     if (props.type === "city") {
       setOrder((props.object as CityObject)?.order || 0);
@@ -148,13 +139,35 @@ function Edit(props: EditProps) {
     }
   }
 
-  function sendObject(images: string[], cover: string) {
-    console.log(images, cover);
-    axios.post(CONSTANTS.addObjectUrl + props.type, props.object, {
+  function sendObject(pic: string[], card_pic: string) {
+    console.log(pic, card_pic);
+
+    const object: any = {
+      name,
+      location,
+      detail,
+      oneword,
+      pic,
+      card_pic,
+      order,
+      hotvalue,
+    };
+    if (props.object._id) {
+      object._id = props.object._id;
+    }
+    if (props.type === "scenenic") {
+      object["city_id"] = city_id;
+    } else {
+      object["scenenic_id"] = scenenic_id;
+      object["city_id"] = city_id;
+    }
+
+    axios.post(CONSTANTS.addObjectUrl + props.type, object, {
       headers: {
         "Authorization": localStorage.getItem("token") || "",
       }
     }).then((res) => {
+      props.onOk();
       console.log(res);
     });
   }
@@ -173,9 +186,9 @@ function Edit(props: EditProps) {
       setCover: (cover) => {
         setCardPic(cover);
       },
-      onSuccess: (images, cover) => {
+      onSuccess: (pic, card_pic) => {
         console.log("success");
-        sendObject(images, cover);
+        sendObject(pic, card_pic);
       },
     });
   }
@@ -183,7 +196,7 @@ function Edit(props: EditProps) {
   const inputClass = " border-gray-200 border-2 px-2 rounded-md ";
 
   return <>
-    <PopEditor okText={isEditing ? "修改" : "发布"} cancelText={"取消"} onOk={async () => {await send();}} opened={props.opened} onClose={() => {props.onClose();}}>
+    <PopEditor okText={props.object._id !== "" ? "修改" : "发布"} cancelText={"取消"} onOk={async () => {await send();}} opened={props.opened} onClose={() => {props.onClose();}}>
       <div className="mt-10" style={{width: "60%"}}>
         <div className="flex items-center mb-8">
           <div className="text-2xl whitespace-nowrap">{prefix}名称：</div>
@@ -207,21 +220,18 @@ function Edit(props: EditProps) {
         </div>
         <textarea className={"mb-8 w-full p-2 " + inputClass} maxLength={600} rows={8} placeholder="城市详细介绍" value={detail}
           onChange={(e) => setDetail(e.target.value)} style={{resize: "none"}}/>
-        {
-          props.type === "city" &&
-          <div className="flex h-5 items-center justify-between mb-8 mx-auto">
-            <div className="flex">
-              <div className="text-lg whitespace-nowrap mr-4">城市排名：</div>
-              <input placeholder="order" className={"text-lg w-32 " + inputClass} type="number" value={order}
-                onChange={(e) => setOrder(parseInt(e.target.value))}/>
-            </div>
-            <div className="flex">
-              <div className="text-lg whitespace-nowrap mr-4">城市热力值：</div>
-              <input placeholder="hotvalue" className={"text-lg w-32 " + inputClass} type="number" value={hotvalue}
-                onChange={(e) => setHotvalue(parseInt(e.target.value))}/>
-            </div>
+        <div className="flex h-5 items-center justify-between mb-8 mx-auto">
+          <div className="flex">
+            <div className="text-lg whitespace-nowrap mr-4">{prefix}排名：</div>
+            <input placeholder="order" className={"text-lg w-32 " + inputClass} type="number" value={order}
+              onChange={(e) => setOrder(parseInt(e.target.value))}/>
           </div>
-        }
+          <div className="flex">
+            <div className="text-lg whitespace-nowrap mr-4">{prefix}热力值：</div>
+            <input placeholder="hotvalue" className={"text-lg w-32 " + inputClass} type="number" value={hotvalue}
+              onChange={(e) => setHotvalue(parseInt(e.target.value))}/>
+          </div>
+        </div>
         <div className="flex justify-center items-center flex-wrap">
           <Images images={pic} setImages={(images) => {setPic(images);}}
             pendingImages={pendingImages} setPendingImages={(pendingImages) => {setPendingImages(pendingImages);}}
@@ -245,18 +255,27 @@ function Manage(props: ManageProps) {
   const [object, setObject] = React.useState<CityObject | ScenenicObject | FoodObject>(emptyCityObject());
   const [opened, setOpened] = React.useState(false);
 
-  const prefix = props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食";
+  const [type, setType] = React.useState(props.type);
+
+  // const prefix = props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食";
 
   function refresh() {
     console.log(`refresh at page ${page} with size ${pageSize}`);
-    setObjects([]);
-    setTotal(22);
-    return;
+    axios.get(CONSTANTS.getAllObjectUrl + props.type + (props.type === "city" ? "s" : "") + `/${page}/${pageSize}`)
+      .then(res => {
+        setObjects(res.data.data);
+        console.log(res.data.data);
+        console.log(res.data.data.length);
+        setTotal(res.data.data.length);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   useEffect(() => {
     refresh();
-  }, [page, pageSize]);
+  }, [page, pageSize, props]);
 
   const columns = [];
   columns.push({
@@ -279,7 +298,11 @@ function Manage(props: ManageProps) {
         {
           props.type === "city" &&
           <div onClick={() => {
-            setObject(emptyScenicObject());
+            setType("scenenic");
+            setObject({
+              ...emptyScenicObject(),
+              city_id: object._id,
+            });
             setOpened(true);
           }}>
             新增景点
@@ -288,13 +311,19 @@ function Manage(props: ManageProps) {
         {
           props.type === "scenenic" &&
           <div onClick={() => {
-            setObject(emptyFoodObject());
+            setType("food");
+            setObject({
+              ...emptyFoodObject(),
+              city_id: (object as ScenenicObject).city_id,
+              scenenic_id: object._id,
+            });
             setOpened(true);
           }}>
             新增美食
           </div>
         }
         <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
+          setType(props.type);
           setObject(object);
           setOpened(true);
         }}>编辑</div>
@@ -317,7 +346,7 @@ function Manage(props: ManageProps) {
       <Table
         className="mb-4"
         columns={columns}
-        dataSource={objects.map((object) => ({...object, key: object.name}))}
+        dataSource={objects.map((object) => ({...object, key: object._id}))}
         pagination={false}
       />
       {pagination}
@@ -326,13 +355,14 @@ function Manage(props: ManageProps) {
         <div className="flex justify-end mb-4 flex-grow">
           <button className="font-bold h-8 px-4 rounded-md mr-4 duration-200 bg-red-300 hover:bg-red-800 hover:text-white"
             onClick={() => {
+              setType("city");
               setObject(emptyCityObject());
               setOpened(true);
             }}>新增城市
           </button>
         </div>
       }
-      <Edit onOk={() => {refresh();}} type={props.type} prefix={prefix} object={object} opened={opened} onClose={() => {setOpened(false);}}/>
+      <Edit onOk={() => {refresh();}} type={type} object={object} opened={opened} onClose={() => {setOpened(false);}}/>
     </div>
   </>;
 }
