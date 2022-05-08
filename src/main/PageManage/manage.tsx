@@ -91,6 +91,7 @@ function Edit(props: EditProps) {
   const [pendingImages, setPendingImages] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log(props.object);
     setName(props.object?.name || "");
     setLocation(props.object?.location || {latitude: 0, longitude: 0});
     setLongitude(props.object?.location?.longitude || 0);
@@ -100,12 +101,12 @@ function Edit(props: EditProps) {
     setPic(props.object?.pic || []);
     setCardPic(props.object?.card_pic || "");
 
+    setOrder((props.object as CityObject)?.order || 0);
+    setHotvalue((props.object as CityObject)?.hotvalue || 0);
+
     setPrefix(props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食");
 
-    if (props.type === "city") {
-      setOrder((props.object as CityObject)?.order || 0);
-      setHotvalue((props.object as CityObject)?.hotvalue || 0);
-    } else if (props.type === "scenenic") {
+    if (props.type === "scenenic") {
       setCityId((props.object as ScenenicObject)?.city_id || "");
     } else {
       setScenenicId((props.object as FoodObject)?.scenenic_id || "");
