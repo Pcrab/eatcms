@@ -62,7 +62,7 @@ function PopWindow(props: PopWindowProps) {
 
   if (props.opened || active) {
     return <>
-      <div className={`absolute top-0 left-0 w-full h-full ${aniClassName} ${props.className}`}
+      <div className={`fixed top-0 left-0 w-full h-full ${aniClassName} ${props.className}`}
         style={{backgroundColor: "rgba(0,0,0,0.65)"}}
         onTransitionEnd={() => {
           onTransitionEnd();
