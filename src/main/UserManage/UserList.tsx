@@ -27,13 +27,13 @@ function UserList() {
   const [visible, setVisible] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [text, setText] = React.useState("");
-  const [action, setAction] = React.useState("deleteUser");
+  const [action, setAction] = React.useState("");
 
   function onOk() {
-    if (action === "deleteUser") {
-      deleteUser(user);
-    } else if (action === "deleteUsers") {
-      deleteUsers();
+    if (action === "resumeUser") {
+      resumeUser(user);
+    } else if (action === "resumeUsers") {
+      resumeUsers();
     } else if (action === "blockUser") {
       blockUser(user);
     } else if (action === "blockUsers") {
@@ -152,7 +152,7 @@ function UserList() {
       dataIndex: "isLegal",
       key: "isLegal",
       render: (isLegal: boolean) => {
-        if (isLegal === false) {
+        if (!isLegal) {
           return <Tag color="volcano">封禁</Tag>;
         } else {
           return <Tag color="green">正常</Tag>;
@@ -167,15 +167,15 @@ function UserList() {
       render: (text: string, record: UserObject) => {
         if (record.role.indexOf(UserType.Admin) === -1) {
           return <div className="flex justify-center">
-            <div className="text-blue-800 mr-4 font-bold cursor-pointer" onClick={() => {
+            <div className="text-red-800 mr-4 font-bold cursor-pointer" onClick={() => {
               setUser(record);
               showModal("封禁用户", `确定封禁用户 ${record.userName} 吗？`, "blockUser");
             }}>封禁
             </div>
-            <div className="text-red-800 font-bold cursor-pointer" onClick={() => {
+            <div className="text-green-800 font-bold cursor-pointer" onClick={() => {
               setUser(record);
-              showModal("删除用户", `确定删除用户 ${record.userName} 吗？`, "deleteUser");
-            }}>删除
+              showModal("解封用户", `确定解封用户 ${record.userName} 吗？`, "resumeUser");
+            }}>解封
             </div>
           </div>;
         } else {
@@ -185,17 +185,32 @@ function UserList() {
     }
   ];
 
-  function deleteUser(user: UserObject | null) {
+  async function setUserLegal(_id: string, isLegal: boolean) {
+    await axios.post(CONSTANTS.setUserUrl, {
+      _id,
+      isLegal,
+    }, {
+      headers: {
+        Authorization: localStorage.getItem("token")||"",
+      }
+    });
+  }
+
+  function resumeUser(user: UserObject | null) {
     if (user) {
       console.log(`user deleted: ${user._id}`);
+      setUserLegal(user._id, true).then();
       refreshUser();
     } else {
       console.log("user not found");
     }
   }
 
-  function deleteUsers() {
+  function resumeUsers() {
     console.log(`users deleted: ${selected.map(user => user._id)}`);
+    selected.forEach((user) => {
+      setUserLegal(user._id, true).then();
+    });
     setSelected([]);
     refreshUser();
   }
@@ -203,6 +218,7 @@ function UserList() {
   function blockUser(user: UserObject | null) {
     if (user) {
       console.log(`user blocked: ${user._id}`);
+      setUserLegal(user._id, false).then();
       refreshUser();
     } else {
       console.log("user not found");
@@ -211,6 +227,9 @@ function UserList() {
 
   function blockUsers() {
     console.log(`users blocked: ${selected.map(user => user._id)}`);
+    selected.forEach((user) => {
+      setUserLegal(user._id, false).then();
+    });
     setSelected([]);
     refreshUser();
   }
@@ -243,8 +262,8 @@ function UserList() {
               "bg-red-300 hover:bg-red-800 hover:text-white" :
               "bg-gray-300 text-gray-500")
           } onClick={() => {
-            showModal("批量删除用户", "确定删除选中的这些用户吗？", "deleteUsers");
-          }}>批量删除
+            showModal("批量解封用户", "确定解封选中的这些用户吗？", "resumeUsers");
+          }}>批量解封
           </button>
         </div>
       </div>

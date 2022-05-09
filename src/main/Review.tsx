@@ -25,21 +25,27 @@ function Article(props: ArticleProps) {
     return <></>;
   }
 
-  function approve() {
+  async function setNote(isLegal: boolean) {
+    await axios.post(CONSTANTS.setNoteUrl, {
+      _id: article._id,
+      isLegal,
+    },{
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token")|| "",
+      }
+    });
+  }
+
+  async function approve() {
     console.log(`approve article ${article?._id}`);
+    await setNote(true);
     props.onSubmit();
   }
 
   async function reject() {
     console.log(`reject article ${article?._id}`);
-    await axios.post(CONSTANTS.setNoteUrl, {
-      _id: article._id,
-    }, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token") || "",
-      }
-    });
+    await setNote(false);
     props.onSubmit();
   }
 
@@ -133,7 +139,7 @@ function Review() {
       dataIndex: "isLegal",
       key: "isLegal",
       render: (isLegal: boolean) => {
-        return isLegal !== false ?
+        return isLegal ?
           <Tag color="green">正常</Tag>  :
           <Tag color="red">已封禁</Tag>;
       }

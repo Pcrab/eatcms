@@ -6,7 +6,7 @@ const remoteBaseUrl = "http://81.68.152.160:3000";
 const CONSTANTS = {
   loginUrl: remoteBaseUrl + "/admin/login",
   allUserUrl: remoteBaseUrl + "/api/allUser",
-  setUserUrl: remoteBaseUrl + "/api/closeuser",
+  setUserUrl: remoteBaseUrl + "/api/setuser",
 
   uploadImgUrl: remoteBaseUrl + "/api/upload",
 
@@ -14,7 +14,7 @@ const CONSTANTS = {
   getAllObjectUrl: remoteBaseUrl + "/csf/getall",
 
   getAllNotesUrl: remoteBaseUrl + "/api/allNotes",
-  setNoteUrl: remoteBaseUrl + "/api/closenote",
+  setNoteUrl: remoteBaseUrl + "/api/setnote",
 
   resetPwdUrl: remoteBaseUrl + "",
   createUserUrl: remoteBaseUrl + "",
