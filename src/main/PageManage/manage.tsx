@@ -258,16 +258,13 @@ function Manage(props: ManageProps) {
 
   const [type, setType] = React.useState(props.type);
 
-  // const prefix = props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食";
-
   function refresh() {
     console.log(`refresh at page ${page} with size ${pageSize}`);
     axios.get(CONSTANTS.getAllObjectUrl + props.type + (props.type === "city" ? "s" : "") + `/${page}/${pageSize}`)
       .then(res => {
+        console.log(res.data);
         setObjects(res.data.data);
-        console.log(res.data.data);
-        console.log(res.data.data.length);
-        setTotal(res.data.data.length);
+        setTotal(res.data.total);
       })
       .catch(err => {
         console.log(err);
