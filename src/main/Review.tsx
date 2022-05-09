@@ -1,22 +1,21 @@
 import React, {useEffect} from "react";
-import {Carousel, Divider, Image, Table} from "antd";
+import {Carousel, Divider, Image, Table, Tag} from "antd";
 import Pagination from "../partials/Pagination";
-import CONSTANTS, {testArticleDetail, testArticles} from "../utils/constants";
+import CONSTANTS from "../utils/constants";
 import PopWindow from "../partials/PopWindow";
+import axios from "axios";
 
 interface ArticleObject {
-  id: string;
+  _id: string;
+  isLegal: boolean;
+  content: string;
   title: string;
-  author: string;
-}
-
-interface ArticleDetailObject extends ArticleObject {
-  content: string[];
-  images?: string[];
+  pic: string[];
+  mark: string;
 }
 
 interface ArticleProps {
-  article: ArticleDetailObject | null;
+  article: ArticleObject;
   onSubmit: () => void;
 }
 
@@ -27,26 +26,34 @@ function Article(props: ArticleProps) {
   }
 
   function approve() {
-    console.log(`approve article ${article?.id}`);
+    console.log(`approve article ${article?._id}`);
     props.onSubmit();
   }
 
-  function reject() {
-    console.log(`reject article ${article?.id}`);
+  async function reject() {
+    console.log(`reject article ${article?._id}`);
+    await axios.post(CONSTANTS.setNoteUrl, {
+      _id: article._id,
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token") || "",
+      }
+    });
     props.onSubmit();
   }
 
   return <>
     <div className="text-center font-bold text-5xl mb-4">{article.title}</div>
-    <div className="mb-6 text-lg">作者：{article.author}</div>
+    <div className="mb-6 text-lg">标签：{article.mark}</div>
     {
-      article.images &&
+      article.pic &&
       <Carousel className="rounded-2xl" autoplay={false}
         style={{backgroundColor: "rgba(0,0,0,0.1)", width: "35rem", height: "35rem"}}>
         {
-          article.images.map((image) => (
+          article.pic.map((image) => (
             <div className="m-auto" key={image}>
-              <Image className="object-scale-down" src={image} width={"35rem"} height={"35rem"}
+              <Image className="object-contain" src={image} width={"35rem"} height={"35rem"}
                 preview={false}
                 fallback={CONSTANTS.fallbackImg}/>
             </div>
@@ -55,23 +62,21 @@ function Article(props: ArticleProps) {
       </Carousel>
     }
     <div className="text-left mt-6 text-lg" style={{width: "40rem"}}>
-      {article.content.map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
-      ))}
+      <pre className="whitespace-pre-line">{article.content}</pre>
     </div>
     <Divider/>
     <div className="mt-6">
+      <button
+        className="bg-red-100 font-bold text-xl px-6 py-2 rounded-xl mx-10 hover:bg-red-800 hover:text-white duration-300"
+        onClick={() => {
+          reject();
+        }}>封禁
+      </button>
       <button
         className="bg-green-100 font-bold text-xl px-6 py-2 rounded-xl mx-10 hover:bg-green-800 hover:text-white duration-300"
         onClick={() => {
           approve();
         }}>通过
-      </button>
-      <button
-        className="bg-red-100 font-bold text-xl px-6 py-2 rounded-xl mx-10 hover:bg-red-800 hover:text-white duration-300"
-        onClick={() => {
-          reject();
-        }}>拒绝
       </button>
     </div>
   </>;
@@ -83,28 +88,30 @@ function Review() {
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
 
-  const [article, setArticle] = React.useState<ArticleDetailObject | null>(null);
+  const [article, setArticle] = React.useState<ArticleObject>({} as ArticleObject);
   const [opened, setOpened] = React.useState(false);
 
   useEffect(() => {
-    refreshArticle();
+    refreshArticle().then(() => {
+      console.log("refreshed");
+    });
   }, [page, pageSize]);
 
-  function refreshArticle() {
+  async function refreshArticle() {
     console.log(`refresh user at page ${page} with size ${pageSize}`);
-    setArticles(testArticles(pageSize));
-    setTotal(22);
-    // setArticle(null);
+    const res = await axios.get(CONSTANTS.getAllNotesUrl + `/${page}/${pageSize}`, {
+      headers: {
+        "Authorization": localStorage.getItem("token") || "",
+      }
+    });
+    console.log(res.data);
+    setArticles(res.data.data);
+    setTotal(res.data.total);
   }
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "文章名称",
+      title: "标题",
       dataIndex: "title",
       key: "title",
       render: (text: string) => {
@@ -117,9 +124,19 @@ function Review() {
       },
     },
     {
-      title: "作者",
-      dataIndex: "author",
-      key: "author",
+      title: "标签",
+      dataIndex: "mark",
+      key: "mark",
+    },
+    {
+      title: "状态",
+      dataIndex: "isLegal",
+      key: "isLegal",
+      render: (isLegal: boolean) => {
+        return isLegal !== false ?
+          <Tag color="green">正常</Tag>  :
+          <Tag color="red">已封禁</Tag>;
+      }
     },
     {
       title: "操作",
@@ -129,7 +146,7 @@ function Review() {
       render: (text: string, record: ArticleObject) => (
         <div className="text-red-800 flex items-center justify-center font-bold cursor-pointer" onClick={() => {
           console.log(record);
-          setArticle(testArticleDetail(record.id));
+          setArticle(record);
           setOpened(true);
         }}>预览</div>
       ),
@@ -151,7 +168,7 @@ function Review() {
       <Table
         className="mb-4"
         columns={columns}
-        dataSource={articles.map((article) => ({...article, key: article.id}))}
+        dataSource={articles.map((article) => ({...article, key: article._id}))}
         pagination={false}
       />
       {pagination}
@@ -159,7 +176,7 @@ function Review() {
         setOpened(false);
       }}>
         <Article article={article} onSubmit={() => {
-          refreshArticle();
+          refreshArticle().then();
           setOpened(false);
         }}/>
       </PopWindow>

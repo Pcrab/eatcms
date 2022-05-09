@@ -10,9 +10,6 @@ interface UserObject {
   _id: string;
   userName: string;
   role: string[];
-  city?: string;
-  province?: string;
-  country?: string;
   create_time?: string;
   isLegal?: boolean;
 }
@@ -122,21 +119,6 @@ function UserList() {
       title: "用户名",
       dataIndex: "userName",
       key: "userName",
-    },
-    {
-      title: "城市",
-      dataIndex: "city",
-      key: "city",
-    },
-    {
-      title: "省份",
-      dataIndex: "province",
-      key: "province",
-    },
-    {
-      title: "国家",
-      dataIndex: "country",
-      key: "country",
     },
     {
       title: "身份",
