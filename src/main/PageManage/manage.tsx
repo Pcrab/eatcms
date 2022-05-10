@@ -12,7 +12,7 @@ interface LocationObject {
   longitude: number,
 }
 
-interface CityObject {
+interface BaseObject {
   _id: string,
   name: string,
   location: LocationObject;
@@ -22,6 +22,10 @@ interface CityObject {
   hotvalue: number;
   pic: string[];
   card_pic: string;
+}
+
+interface CityObject extends BaseObject {
+  province: string;
 }
 
 function emptyCityObject(): CityObject {
@@ -38,10 +42,11 @@ function emptyCityObject(): CityObject {
     hotvalue: 0,
     pic: [],
     card_pic: "",
+    province: "",
   };
 }
 
-interface ScenenicObject extends CityObject {
+interface ScenenicObject extends BaseObject {
   city_id: string;
 }
 
@@ -83,6 +88,8 @@ function Edit(props: EditProps) {
 
   const [order, setOrder] = useState(0);
   const [hotvalue, setHotvalue] = useState(0);
+
+  const [province, setProvince] = useState("");
   const [city_id, setCityId] = useState("");
   const [scenenic_id, setScenenicId] = useState("");
 
@@ -106,7 +113,9 @@ function Edit(props: EditProps) {
 
     setPrefix(props.type === "city" ? "城市" : props.type === "scenenic" ? "景点" : "美食");
 
-    if (props.type === "scenenic") {
+    if (props.type === "city") {
+      setProvince((props.object as CityObject)?.province || "");
+    } else if (props.type === "scenenic") {
       setCityId((props.object as ScenenicObject)?.city_id || "");
     } else {
       setScenenicId((props.object as FoodObject)?.scenenic_id || "");
@@ -156,9 +165,11 @@ function Edit(props: EditProps) {
     if (props.object._id) {
       object._id = props.object._id;
     }
-    if (props.type === "scenenic") {
+    if (props.type === "city") {
+      object["province"] = province;
+    } else if (props.type === "scenenic") {
       object["city_id"] = city_id;
-    } else {
+    } else if (props.type === "food") {
       object["scenenic_id"] = scenenic_id;
       object["city_id"] = city_id;
     }
@@ -233,6 +244,13 @@ function Edit(props: EditProps) {
               onChange={(e) => setHotvalue(parseInt(e.target.value))}/>
           </div>
         </div>
+        {props.type === "city" &&
+          <div className="flex">
+            <div className="text-lg whitespace-nowrap mr-4">省市：</div>
+            <input placeholder="province" className={"text-lg w-32 " + inputClass} type="text" value={province}
+              onChange={(e) => setProvince(e.target.value)}/>
+          </div>
+        }
         <div className="flex justify-center items-center flex-wrap">
           <Images images={pic} setImages={(images) => {setPic(images);}}
             pendingImages={pendingImages} setPendingImages={(pendingImages) => {setPendingImages(pendingImages);}}
@@ -286,6 +304,13 @@ function Manage(props: ManageProps) {
     dataIndex: "oneword",
     key: "oneword",
   });
+  if (props.type === "city") {
+    columns.push({
+      title: "省市",
+      dataIndex: "province",
+      key: "province",
+    });
+  }
   columns.push({
     title: "操作",
     dataIndex: "action",
