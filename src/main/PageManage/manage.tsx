@@ -24,11 +24,7 @@ interface BaseObject {
   card_pic: string;
 }
 
-interface CityObject extends BaseObject {
-  province: string;
-}
-
-function emptyCityObject(): CityObject {
+function emptyBaseObject(): BaseObject {
   return {
     _id: "",
     name: "",
@@ -42,28 +38,44 @@ function emptyCityObject(): CityObject {
     hotvalue: 0,
     pic: [],
     card_pic: "",
+  };
+}
+
+interface CityObject extends BaseObject {
+  province: string;
+  yiqing_policy: string;
+}
+
+function emptyCityObject(): CityObject {
+  return {
+    ...emptyBaseObject(),
     province: "",
+    yiqing_policy: "",
   };
 }
 
 interface ScenenicObject extends BaseObject {
   city_id: string;
+  yiqing_policy: string;
 }
 
 function emptyScenicObject(): ScenenicObject {
   return {
-    ...emptyCityObject(),
+    ...emptyBaseObject(),
     city_id: "",
+    yiqing_policy: "",
   };
 }
 
-interface FoodObject extends ScenenicObject {
+interface FoodObject extends BaseObject {
+  city_id: string;
   scenenic_id: string;
 }
 
 function emptyFoodObject(): FoodObject {
   return {
-    ...emptyScenicObject(),
+    ...emptyBaseObject(),
+    city_id: "",
     scenenic_id: "",
   };
 }
@@ -85,12 +97,12 @@ function Edit(props: EditProps) {
   const [oneword, setOneword] = useState("");
   const [pic, setPic] = useState<string[]>([]);
   const [card_pic, setCardPic] = useState("");
-
   const [order, setOrder] = useState(0);
   const [hotvalue, setHotvalue] = useState(0);
 
   const [province, setProvince] = useState("");
   const [city_id, setCityId] = useState("");
+  const [yiqing_policy, setYiqingPolicy] = useState("");
   const [scenenic_id, setScenenicId] = useState("");
 
   const [prefix, setPrefix] = useState("");
@@ -107,7 +119,6 @@ function Edit(props: EditProps) {
     setOneword(props.object?.oneword || "");
     setPic(props.object?.pic || []);
     setCardPic(props.object?.card_pic || "");
-
     setOrder((props.object as CityObject)?.order || 0);
     setHotvalue((props.object as CityObject)?.hotvalue || 0);
 
@@ -115,8 +126,10 @@ function Edit(props: EditProps) {
 
     if (props.type === "city") {
       setProvince((props.object as CityObject)?.province || "");
+      setYiqingPolicy((props.object as CityObject)?.yiqing_policy || "");
     } else if (props.type === "scenenic") {
       setCityId((props.object as ScenenicObject)?.city_id || "");
+      setYiqingPolicy((props.object as ScenenicObject)?.yiqing_policy || "");
     } else {
       setScenenicId((props.object as FoodObject)?.scenenic_id || "");
       setCityId((props.object as FoodObject)?.city_id || "");
@@ -167,8 +180,10 @@ function Edit(props: EditProps) {
     }
     if (props.type === "city") {
       object["province"] = province;
+      object["yiqing_policy"] = yiqing_policy;
     } else if (props.type === "scenenic") {
       object["city_id"] = city_id;
+      object["yiqing_policy"] = yiqing_policy;
     } else if (props.type === "food") {
       object["scenenic_id"] = scenenic_id;
       object["city_id"] = city_id;
@@ -250,6 +265,11 @@ function Edit(props: EditProps) {
             <input placeholder="province" className={"text-lg w-32 " + inputClass} type="text" value={province}
               onChange={(e) => setProvince(e.target.value)}/>
           </div>
+        }
+        {
+          (props.type === "city" || props.type === "scenenic") &&
+          <textarea className={"my-8 w-full p-2 " + inputClass} maxLength={600} rows={8} placeholder="疫情政策" value={yiqing_policy}
+            onChange={(e) => setYiqingPolicy(e.target.value)} style={{resize: "none"}}/>
         }
         <div className="flex justify-center items-center flex-wrap">
           <Images images={pic} setImages={(images) => {setPic(images);}}
