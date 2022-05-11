@@ -119,6 +119,7 @@ interface SendImagesObject {
 }
 
 export async function sendImages(obj: SendImagesObject) {
+  console.log(obj);
   let cover = "";
   const pending = [...obj.pendingImages];
   const newPending: string[] = [];
@@ -132,6 +133,8 @@ export async function sendImages(obj: SendImagesObject) {
 
   if (obj.cover.indexOf("data") === 0) {
     pending.push(obj.cover);
+  } else {
+    cover = obj.cover;
   }
 
   for (const item of [...pending]) {
@@ -152,7 +155,7 @@ export async function sendImages(obj: SendImagesObject) {
       });
       if (result.status === 200) {
         const name = data.host + "/city/" + fileName;
-        if (item === obj.cover) {
+        if (cover === "" && item === obj.cover) {
           obj.setCover(name);
           cover = name;
         } else {
@@ -180,7 +183,7 @@ export async function sendImages(obj: SendImagesObject) {
   } else {
     // 全都上传完成，可以发送到后台
     console.log(`send: ${urls}`);
-
+    console.log(urls, cover);
     if (obj.onSuccess) {
       console.log(urls, cover);
       obj.onSuccess(urls, cover);

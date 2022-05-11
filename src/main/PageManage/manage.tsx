@@ -310,8 +310,14 @@ function Manage(props: ManageProps) {
   }
 
   useEffect(() => {
+    setPageSize(10);
+    setPage(1);
+  }, [props.type]);
+
+  useEffect(() => {
     refresh();
   }, [page, pageSize, props]);
+
 
   const columns = [];
   columns.push({
