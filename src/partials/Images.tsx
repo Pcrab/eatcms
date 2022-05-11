@@ -2,12 +2,11 @@ import React, {HTMLProps, useRef} from "react";
 
 interface ImgProps extends HTMLProps<HTMLImageElement> {
   deleteImg: () => void;
-  key?: string;
 }
 
 function Img(props: ImgProps) {
-  return <div key={props.key} className="relative mb-8 w-40 h-40 mr-6">
-    <img alt="上传的图片" key={props.src} src={props.src} className="object-cover w-40 h-40 rounded-xl"/>
+  return <div className="relative mb-8 w-40 h-40 mr-6">
+    <img alt="上传的图片" src={props.src} className="object-cover w-40 h-40 rounded-xl"/>
     <div onClick={() => {
       props.deleteImg();
     }} className="absolute w-6 h-6 leading-6 text-white text-center rounded-3xl text-xl cursor-pointer"
@@ -108,21 +107,35 @@ function Images(props: ImagesProps) {
   return <>
     <div className="flex flex-col items-center">
       <div className="flex flex-wrap my-5">
-        {props.images.map((item, index) => {
-          return <>
-            <Img src={item} key={`origin-${index}`} deleteImg={() => {deleteImg(index);}}/>
-          </>;
-        })}
-        {props.pendingImages.map((item, index) => {
-          return <>
-            <Img src={item} key={`pending-${index}`} deleteImg={() => {deleteImg(index + props.images.length);}}/>
-          </>;
-        })}
+        {
+          React.Children.toArray(
+            props.images.map((item, index) => {
+              return <>
+                <Img src={item} deleteImg={() => {
+                  deleteImg(index);
+                }}/>
+              </>;
+            })
+          )
+        }
+        {
+          React.Children.toArray(
+            props.pendingImages.map((item, index) => {
+              return <>
+                <Img src={item} key={`pending-${index}`} deleteImg={() => {
+                  deleteImg(index + props.images.length);
+                }}/>
+              </>;
+            })
+          )
+        }
         {
           props.images.length + props.pendingImages.length < 9 &&
           <div className="w-40 h-40 relative flex items-center justify-center mb-8 rounded border-2 text-lg
           border-gray-300 text-gray-500 bg-gray-100 duration-200 hover:border-gray-500 hover:text-gray-700 hover:font-bold"
-          onClick={() => {tryUpload();}}>
+          onClick={() => {
+            tryUpload();
+          }}>
             <div className="m-auto">上传</div>
             <input hidden={true} ref={fileInput} type="file" onChange={() => {
               if (fileInput.current) {
@@ -134,9 +147,14 @@ function Images(props: ImagesProps) {
       </div>
       {
         props.cover
-          ? <Img src={props.cover} deleteImg={() => {props.setCover("");}} />
+          ? <Img src={props.cover} deleteImg={() => {
+            props.setCover("");
+          }}/>
           : <div className="w-60 h-32 relative flex items-center justify-center mb-8 rounded border-2 text-lg
-      border-gray-300 text-gray-500 bg-gray-100 duration-200 hover:border-gray-500 hover:text-gray-700 hover:font-bold" onClick={() => {tryUploadCover();}}>
+      border-gray-300 text-gray-500 bg-gray-100 duration-200 hover:border-gray-500 hover:text-gray-700 hover:font-bold"
+          onClick={() => {
+            tryUploadCover();
+          }}>
             <div className="m-auto">上传封面图</div>
             <input hidden={true} ref={coverInput} type="file" onChange={() => {
               if (coverInput.current) {
