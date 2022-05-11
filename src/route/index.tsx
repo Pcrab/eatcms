@@ -1,14 +1,9 @@
 import React from "react";
-import {ReactComponent as AdminSvg} from "../icons/admin.svg";
-import Admin from "../main/Admin";
 import {ReactComponent as ReviewSvg} from "../icons/review.svg";
 import Review from "../main/Review";
 import {ReactComponent as UserManageSvg} from "../icons/userManage.svg";
 import UserList from "../main/UserManage/UserList";
 import {ReactComponent as PageManageSvg} from "../icons/pageManage.svg";
-// import Spot from "../main/PageManage/Spot";
-// import City from "../main/PageManage/City";
-// import Food from "../main/PageManage/Food";
 import Login, {LoginType} from "../Login";
 import Main from "../Main";
 import {RouteObject} from "react-router-dom";
@@ -34,12 +29,6 @@ export const items: PageObject[] = [
     key: "review",
     icon: <ReviewSvg className={iconClass}/>,
     content: <Review/>,
-  },
-  {
-    label: "超级管理员",
-    key: "admin",
-    icon: <AdminSvg className={iconClass}/>,
-    content: <Admin/>,
   },
   {
     label: "用户管理",
