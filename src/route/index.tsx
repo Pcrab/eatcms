@@ -8,6 +8,8 @@ import Login, {LoginType} from "../Login";
 import Main from "../Main";
 import {RouteObject} from "react-router-dom";
 import Manage from "../main/PageManage/manage";
+import Drag from "../main/Drag/Drag";
+import {ReactComponent as DragSvg} from "../icons/configuration.svg";
 
 const iconClass = "h-5 w-6";
 
@@ -41,6 +43,18 @@ export const items: PageObject[] = [
         content: <UserList/>,
       },
     ],
+  },
+  {
+    label: "页面配置",
+    key: "Drag",
+    icon: <DragSvg className={iconClass}/>,
+    children: [
+      {
+        label: "城市详情页配置",
+        key: "cityDetail",
+        content: <Drag />,
+      }
+    ]
   },
   {
     label: "页面管理",
