@@ -101,6 +101,15 @@
     line-height: 26px;
     font-size: 20px;
     padding: 0 20px;
-    border: 2px solid blue;
+    /*border: 2px solid blue;*/
     border-radius: 5px;
+}
+
+.operateor_item:first-child {
+    background-color: white;
+}
+
+.operateor_item:last-child {
+    color: white;
+    background-color: red;
 }
