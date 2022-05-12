@@ -93,7 +93,7 @@ function UserList() {
       handleSelect(selectedRows);
     },
     getCheckboxProps: (record: UserObject) => {
-      console.log(record);
+      console.log(record._id);
       return {
         disabled: record.role.indexOf("admin") !== -1,
         name: record._id,
@@ -251,7 +251,7 @@ function UserList() {
         <div className="flex justify-end mb-4 flex-grow">
           <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
             selected.length !== 0 ?
-              "bg-blue-300 hover:bg-blue-800 hover:text-white" :
+              "bg-red-300 hover:bg-red-800 hover:text-white" :
               "bg-gray-300 text-gray-500")
           } onClick={() => {
             showModal("批量封禁用户", "确定封禁选中的这些用户吗？", "blockUsers");
@@ -259,7 +259,7 @@ function UserList() {
           </button>
           <button disabled={selected.length === 0} className={"font-bold h-8 px-4 rounded-md mr-4 duration-200 " + (
             selected.length !== 0 ?
-              "bg-red-300 hover:bg-red-800 hover:text-white" :
+              "bg-blue-300 hover:bg-blue-800 hover:text-white" :
               "bg-gray-300 text-gray-500")
           } onClick={() => {
             showModal("批量解封用户", "确定解封选中的这些用户吗？", "resumeUsers");
