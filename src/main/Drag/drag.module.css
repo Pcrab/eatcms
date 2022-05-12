@@ -1,0 +1,101 @@
+.container {
+    display: flex;
+
+}
+
+.dragArea {
+    height: 600px;
+    width: 300px;
+    background-color: rgb(203, 218, 223);
+    padding: 10px 0;
+    margin-right: 30px;
+    border-radius: 35px;
+}
+
+.dragitem {
+    height: 100px;
+    background-color: rgb(228, 200, 85);
+    width: 80%;
+    margin: 20px auto;
+    font-size: 20px;
+    display: flex;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 二级小块 */
+.childbox1{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(228, 200, 85);
+    border-radius: 35px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.childbox2{
+    display: flex;
+    flex-direction: column;
+    border-radius: 35px;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(228, 200, 85);
+    padding: 6px;
+}
+
+.childitem{
+    padding: 5px;
+    border-radius: 2px;
+    background-color: rgb(162, 165, 162);
+    font-size: 15px;
+    
+    /* height: 80%;
+    margin: 10px;
+    width: 30%; */
+}
+
+.childitem2{
+    padding: 5px;
+    border-radius: 2px;
+    background-color: rgb(157, 176, 153);
+    height: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.dropArea {
+    border-radius: 30px;
+    background-color: rgb(109, 168, 221);
+    height: 600px;
+    width: 300px;
+    padding: 10px 0;
+}
+
+.dropitem {
+    border-radius: 15px;
+    height: 100px;
+    background-color: rgb(227, 188, 35);
+    width: 80%;
+    margin: 20px auto;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.operateor{
+    margin: 70px;
+    height: 90px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.operateor_item{
+    border-color: blue;
+}

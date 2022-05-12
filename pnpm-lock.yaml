@@ -5,6 +5,11 @@ specifiers:
   '@babel/core': ^7.17.10
   '@babel/plugin-syntax-flow': ^7.16.7
   '@babel/plugin-transform-react-jsx': ^7.17.3
+  '@dnd-kit/accessibility': ^3.0.0
+  '@dnd-kit/core': ^5.0.3
+  '@dnd-kit/modifiers': ^5.0.0
+  '@dnd-kit/sortable': ^6.0.1
+  '@dnd-kit/utilities': ^3.1.0
   '@eslint/create-config': ^0.1.2
   '@testing-library/dom': ^8.13.0
   '@testing-library/jest-dom': ^5.16.4
@@ -37,6 +42,11 @@ dependencies:
   '@babel/core': registry.npmmirror.com/@babel/core/7.17.10
   '@babel/plugin-syntax-flow': registry.npmmirror.com/@babel/plugin-syntax-flow/7.16.7_@babel+core@7.17.10
   '@babel/plugin-transform-react-jsx': registry.npmmirror.com/@babel/plugin-transform-react-jsx/7.17.3_@babel+core@7.17.10
+  '@dnd-kit/accessibility': registry.npmmirror.com/@dnd-kit/accessibility/3.0.0_react@18.1.0
+  '@dnd-kit/core': registry.npmmirror.com/@dnd-kit/core/5.0.3_ef5jwxihqo6n7gxfmzogljlgcm
+  '@dnd-kit/modifiers': registry.npmmirror.com/@dnd-kit/modifiers/5.0.0_fxwpfx3kiecdl4vqnr7gbkqgpq
+  '@dnd-kit/sortable': registry.npmmirror.com/@dnd-kit/sortable/6.0.1_fxwpfx3kiecdl4vqnr7gbkqgpq
+  '@dnd-kit/utilities': registry.npmmirror.com/@dnd-kit/utilities/3.1.0_react@18.1.0
   '@testing-library/dom': registry.npmmirror.com/@testing-library/dom/8.13.0
   '@testing-library/jest-dom': registry.npmmirror.com/@testing-library/jest-dom/5.16.4
   '@testing-library/react': registry.npmmirror.com/@testing-library/react/13.1.1_ef5jwxihqo6n7gxfmzogljlgcm
@@ -1954,6 +1964,76 @@ packages:
     name: '@ctrl/tinycolor'
     version: 3.4.1
     engines: {node: '>=10'}
+    dev: false
+
+  registry.npmmirror.com/@dnd-kit/accessibility/3.0.0_react@18.1.0:
+    resolution: {integrity: sha512-QwaQ1IJHQHMMuAGOOYHQSx7h7vMZPfO97aDts8t5N/MY7n2QTDSnW+kF7uRQ1tVBkr6vJ+BqHWG5dlgGvwVjow==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@dnd-kit/accessibility/-/accessibility-3.0.0.tgz}
+    id: registry.npmmirror.com/@dnd-kit/accessibility/3.0.0
+    name: '@dnd-kit/accessibility'
+    version: 3.0.0
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: registry.npmmirror.com/react/18.1.0
+      tslib: registry.npmmirror.com/tslib/2.4.0
+    dev: false
+
+  registry.npmmirror.com/@dnd-kit/core/5.0.3_ef5jwxihqo6n7gxfmzogljlgcm:
+    resolution: {integrity: sha512-IribcBLsaPqHdYLpc5xG0TqwYIaD+65offdEYxoKh38WDjzRxUjDmrt7hj9oa/ooUKL0epux20u+mBTd92i/zw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@dnd-kit/core/-/core-5.0.3.tgz}
+    id: registry.npmmirror.com/@dnd-kit/core/5.0.3
+    name: '@dnd-kit/core'
+    version: 5.0.3
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@dnd-kit/accessibility': registry.npmmirror.com/@dnd-kit/accessibility/3.0.0_react@18.1.0
+      '@dnd-kit/utilities': registry.npmmirror.com/@dnd-kit/utilities/3.1.0_react@18.1.0
+      react: registry.npmmirror.com/react/18.1.0
+      react-dom: registry.npmmirror.com/react-dom/18.1.0_react@18.1.0
+      tslib: registry.npmmirror.com/tslib/2.4.0
+    dev: false
+
+  registry.npmmirror.com/@dnd-kit/modifiers/5.0.0_fxwpfx3kiecdl4vqnr7gbkqgpq:
+    resolution: {integrity: sha512-ZVOfa5dKmvAPBxjjnI4QTm8fHV4/gMdS6k0zY5Z8p/p9HkL/3QEHn2fYgqM2zVDpxf5maqrZ4MvqXILSPNQPMQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@dnd-kit/modifiers/-/modifiers-5.0.0.tgz}
+    id: registry.npmmirror.com/@dnd-kit/modifiers/5.0.0
+    name: '@dnd-kit/modifiers'
+    version: 5.0.0
+    peerDependencies:
+      '@dnd-kit/core': ^5.0.0
+    dependencies:
+      '@dnd-kit/core': registry.npmmirror.com/@dnd-kit/core/5.0.3_ef5jwxihqo6n7gxfmzogljlgcm
+      '@dnd-kit/utilities': registry.npmmirror.com/@dnd-kit/utilities/3.1.0_react@18.1.0
+      tslib: registry.npmmirror.com/tslib/2.4.0
+    transitivePeerDependencies:
+      - react
+    dev: false
+
+  registry.npmmirror.com/@dnd-kit/sortable/6.0.1_fxwpfx3kiecdl4vqnr7gbkqgpq:
+    resolution: {integrity: sha512-FGpRHBcflpwWpSP8bMJ4zNcDywDXssZDJBwGYuHd1RqUU/+JX43pEU0u0OHw06LabEZMOLBbyWoIaZJ0abCOEA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@dnd-kit/sortable/-/sortable-6.0.1.tgz}
+    id: registry.npmmirror.com/@dnd-kit/sortable/6.0.1
+    name: '@dnd-kit/sortable'
+    version: 6.0.1
+    peerDependencies:
+      '@dnd-kit/core': ^5.0.2
+      react: '>=16.8.0'
+    dependencies:
+      '@dnd-kit/core': registry.npmmirror.com/@dnd-kit/core/5.0.3_ef5jwxihqo6n7gxfmzogljlgcm
+      '@dnd-kit/utilities': registry.npmmirror.com/@dnd-kit/utilities/3.1.0_react@18.1.0
+      react: registry.npmmirror.com/react/18.1.0
+      tslib: registry.npmmirror.com/tslib/2.4.0
+    dev: false
+
+  registry.npmmirror.com/@dnd-kit/utilities/3.1.0_react@18.1.0:
+    resolution: {integrity: sha512-2JBdIgjJ7xjMRpKagdMuYKWJdDoVVw9Wc6lfMrLjrq8t4QlMEjtsab5JVUlzWvHgANn7w3Y3VhalFfbp4dQrKg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@dnd-kit/utilities/-/utilities-3.1.0.tgz}
+    id: registry.npmmirror.com/@dnd-kit/utilities/3.1.0
+    name: '@dnd-kit/utilities'
+    version: 3.1.0
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: registry.npmmirror.com/react/18.1.0
+      tslib: registry.npmmirror.com/tslib/2.4.0
     dev: false
 
   registry.npmmirror.com/@eslint/create-config/0.1.2:
