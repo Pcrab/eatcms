@@ -1,6 +1,6 @@
 .container {
     display: flex;
-
+    justify-content: center;
 }
 
 .dragArea {
@@ -90,12 +90,17 @@
 }
 
 .operateor{
-    margin: 70px;
-    height: 90px;
+    margin: 30px 30%;
+    height: 40px;
     display: flex;
     justify-content: space-around;
 }
 
 .operateor_item{
-    border-color: blue;
+    height: 30px;
+    line-height: 26px;
+    font-size: 20px;
+    padding: 0 20px;
+    border: 2px solid blue;
+    border-radius: 5px;
 }
